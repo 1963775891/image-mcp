@@ -1,13 +1,13 @@
-# 即梦 AI 作图服务
+# AI 作图服务
 
 ## 📖 项目简介
 
-即梦 MCP（Model Context Protocol）是一个部署在云端服务器的HTTP请求模式项目，可以让您通过AI助手（如Claude、Dify、LobeChat等）直接调用即梦AI的图像生成功能。
+MCP（Model Context Protocol）是一个部署在云端服务器的HTTP请求模式项目，可以让您通过AI助手（如Claude、Dify、LobeChat等）直接调用即梦AI的图像生成功能。
 
 ### 🎯 主要功能
 - ✨ **文本生成图片**：根据您的描述生成高质量图像
 - 🖼️ **图片参考生成**：上传参考图片，生成相似风格的新图片
-- 🤖 **AI助手集成**：支持Claude Desktop、Dify、LobeChat等AI工具
+- 🤖 **AI助手集成**：支持Dify、LobeChat等AI工具
 - 🎨 **多种模型**：支持即梦3.0、2.1、2.0-pro等多个版本
 - 📐 **自定义尺寸**：支持多种图片比例和自定义尺寸
 
