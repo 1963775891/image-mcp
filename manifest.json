@@ -1,54 +1,56 @@
 {
-    "auth": {
-        "type": "bearer"
-      },
-    "api": [
-      {
-        "name": "generateImage",
-        "url": "http://139.159.140.16:3400/api/generateImage",
-        "description": "即梦AI图像生成。根据文本提示词(prompt)或参考图(filePath)生成图片。会自动解析prompt中的模型和比例，默认使用即梦3.0和16:9。注意：生成时间较长，通常需要2-3分钟，请耐心等待。",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "prompt": {
-              "type": "string",
-              "description": "生成图像的文本描述。例如：用即梦3.0画一个比例1:1的可爱猫咪。注意：图片生成需要2-3分钟时间。"
-            },
-            "filePath": {
-              "type": "string",
-              "description": "【图生图】参考图的URL地址。如果提供，将进入图片混合模式，并忽略比例设置。"
-            }
+  "auth": {
+    "type": "bearer"
+  },
+  "api": [
+    {
+      "name": "generateImage",
+      "url": "http://139.159.140.16:3400/api/generateImage",
+      "description": "即梦AI图像生成。根据文本提示词(prompt)或参考图(filePath)生成图片。会自动解析prompt中的模型和比例，默认使用即梦3.0和16:9。注意：生成时间较长，通常需要2-3分钟，请耐心等待。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "description": "生成图像的文本描述。例如：用即梦3.0画一个比例1:1的可爱猫咪。注意：图片生成需要2-3分钟时间。"
           },
-          "required": ["prompt"]
-        }
+          "filePath": {
+            "type": "string",
+            "description": "【图生图】参考图的URL地址。如果提供，将进入图片混合模式，并忽略比例设置。"
+          }
+        },
+        "required": [
+          "prompt"
+        ]
       }
+    }
+  ],
+  "author": "c-rick",
+  "createdAt": "2025-05-07",
+  "description": "使用即梦AI，根据文本或图片参考生成高质量图像。",
+  "homepage": "https://github.com/c-rick/jimeng-mcp",
+  "identifier": "jimeng-mcp",
+  "meta": {
+    "avatar": "👑",
+    "title": "即梦 AI 作图"
+  },
+  "settings": {
+    "type": "object",
+    "required": [
+      "apiToken"
     ],
-    "author": "c-rick",
-    "createdAt": "2025-05-07",
-    "description": "使用即梦AI，根据文本或图片参考生成高质量图像。",
-    "homepage": "https://github.com/c-rick/jimeng-mcp",
-    "identifier": "jimeng-mcp",
-    "meta": {
-      "avatar": "👑",
-      "title": "即梦 AI 作图"
-    },
-    "settings": {
-      "type": "object",
-      "required": [
-        "apiToken"
-      ],
-      "properties": {
-        "apiToken": {
-          "type": "string",
-          "title": "即梦 Session ID",
-          "description": "请从即梦官网(jimeng.jianying.com)的 Cookie 中获取 session_id 并填入此处",
-          "format": "password"
-        }
+    "properties": {
+      "apiToken": {
+        "type": "string",
+        "title": "即梦 Session ID",
+        "description": "请从即梦官网(jimeng.jianying.com)的 Cookie 中获取 session_id 并填入此处",
+        "format": "password"
       }
-    },
-    "ui": {
-      "mode": "iframe",
-      "url": "https://github.com/c-rick/jimeng-mcp"
-    },
-    "version": "1.6.1"
-  }
+    }
+  },
+  "ui": {
+    "mode": "iframe",
+    "url": "https://github.com/c-rick/jimeng-mcp"
+  },
+  "version": "1.7.0"
+}
