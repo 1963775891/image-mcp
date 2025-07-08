@@ -9,6 +9,7 @@ import crc32 from 'crc32';
 
 // 模型映射
 const MODEL_MAP: Record<string, string> = {
+  'jimeng-3.1': 'high_aes_general_v30l_art_fangzhou:general_v3.0_18b',
   'jimeng-3.0': 'high_aes_general_v30l:general_v3.0_18b',
   'jimeng-2.1': 'high_aes_general_v21_L:general_v2.1_L',
   'jimeng-2.0-pro': 'high_aes_general_v20_L:general_v2.0_L',
@@ -36,7 +37,7 @@ const unixTimestamp = () => {
 
 
 // 常量定义
-const DEFAULT_MODEL = 'jimeng-3.0';
+const DEFAULT_MODEL = 'jimeng-3.1';
 const DEFAULT_BLEND_MODEL = 'jimeng-3.0';
 const DRAFT_VERSION = '3.0.2';
 const DEFAULT_ASSISTANT_ID = '513695'; // 从原始仓库中提取

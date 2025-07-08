@@ -6,13 +6,13 @@
       {
         "name": "generateImage",
         "url": "http://139.159.140.16:3400/api/generateImage",
-        "description": "即梦AI图像生成。根据文本提示词(prompt)或参考图(filePath)生成图片。会自动解析prompt中的模型和比例，默认使用即梦3.0和16:9。注意：生成时间较长，通常需要2-3分钟，请耐心等待。",
+        "description": "即梦AI图像生成。根据文本提示词(prompt)或参考图(filePath)生成图片。会自动解析prompt中的模型和比例，默认使用即梦3.1文生图、即梦3.0图生图和16:9比例。注意：生成时间较长，通常需要2-3分钟，请耐心等待。",
         "parameters": {
           "type": "object",
           "properties": {
             "prompt": {
               "type": "string",
-              "description": "生成图像的文本描述。例如：用即梦3.0画一个比例1:1的可爱猫咪。注意：图片生成需要2-3分钟时间。"
+              "description": "生成图像的文本描述。例如：用即梦3.1画一个比例1:1的可爱猫咪。注意：图片生成需要2-3分钟时间。"
             },
             "filePath": {
               "type": "string",

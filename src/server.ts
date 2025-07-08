@@ -9,6 +9,17 @@ import { imageDetectorMiddleware } from './imageDetectorMiddleware.js';
 
 // --- 类型定义与共享逻辑 ---
 const DIMENSIONS = {
+  'jimeng-3.1': { 
+      "1:1": { width: 1328, height: 1328 }, 
+      "16:9": { width: 1664, height: 936 }, 
+      "4:3": { width: 1472, height: 1104 }, 
+      "3:2": { width: 1584, height: 1056 }, 
+      "21:9": { width: 2016, height: 864 }, 
+      "3:4": { width: 1104, height: 1472 }, 
+      "2:3": { width: 1056, height: 1584 }, 
+      "9:21": { width: 936, height: 1664 }, 
+      "9:16": { width: 936, height: 1664 } 
+  },
   'jimeng-3.0': { 
       "1:1": { width: 1328, height: 1328 }, 
       "16:9": { width: 1664, height: 936 }, 
@@ -39,6 +50,7 @@ type AspectRatio<M extends ModelName> = keyof typeof DIMENSIONS[M];
 // 智能解析函数
 function extractModel(promptText: string): { model: string | null, cleanedPrompt: string } {
   const modelKeywords: { [key: string]: string[] } = {
+      'jimeng-3.1': ['即梦3.1', 'jimeng-3.1', 'jimeng 3.1'],
       'jimeng-3.0': ['即梦3.0', 'jimeng-3.0', 'jimeng 3.0'],
       'jimeng-2.1': ['即梦2.1', 'jimeng-2.1', 'jimeng 2.1'],
       'jimeng-2.0-pro': ['即梦2.0pro', '即梦2.0 pro', 'jimeng-2.0-pro', 'jimeng 2.0-pro', 'jimeng 2.0 pro'],
@@ -394,7 +406,7 @@ export const startServer = async () => {
 
           const finalArgs: ImageGenerationParams = { 
               prompt: actualPrompt.replace(/^用/, '').trim(), 
-              model: extractedModel || 'jimeng-3.0' 
+              model: extractedModel || 'jimeng-3.1' 
           };
           
           const ratio = actualRatio || '16:9';
@@ -451,7 +463,7 @@ export const startServer = async () => {
               return;
           }
 
-          const { prompt, model = 'jimeng-3.0', aspect_ratio = '16:9', filePath } = req.body;
+          const { prompt, model = 'jimeng-3.1', aspect_ratio = '16:9', filePath } = req.body;
           if (!prompt) {
               res.status(400).json({ error: '"prompt" 字段是必需的' });
               return;
