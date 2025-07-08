@@ -36,8 +36,8 @@ const unixTimestamp = () => {
 
 
 // 常量定义
-const DEFAULT_MODEL = 'jimeng-2.1';
-const DEFAULT_BLEND_MODEL = 'jimeng-2.0-pro';
+const DEFAULT_MODEL = 'jimeng-3.0';
+const DEFAULT_BLEND_MODEL = 'jimeng-3.0';
 const DRAFT_VERSION = '3.0.2';
 const DEFAULT_ASSISTANT_ID = '513695'; // 从原始仓库中提取
 const WEB_ID = Math.random() * 999999999999999999 + 7000000000000000000;
@@ -58,7 +58,7 @@ interface ImageGenerationParams {
   prompt: string; // 提示词
   width?: number; // 图像宽度，默认1024
   height?: number; // 图像高度，默认1024
-  sample_strength?: number; // 精细度，默认0.5
+  sample_strength?: number; // 精细度，默认1
   negative_prompt?: string; // 反向提示词，默认空
   refresh_token?: string; // 刷新令牌，必需
   req_key?: string; // 自定义参数，兼容旧接口
@@ -82,15 +82,15 @@ export function generateCookie(refreshToken: string) {
 
 // 即梦API客户端类
 class JimengApiClient {
-  private refreshToken: string;
-  private getUploadImageProofUrl = 'https://imagex.bytedanceapi.com/'
-
-  constructor() {
-    this.refreshToken = process.env.JIMENG_API_TOKEN || '';
-    if (!this.refreshToken) {
-      throw new Error('JIMENG_API_TOKEN 环境变量未设置');
+    private refreshToken: string;
+    private getUploadImageProofUrl = 'https://imagex.bytedanceapi.com/'
+  
+    constructor(token: string) {
+      this.refreshToken = token;
+      if (!this.refreshToken) {
+        throw new Error('API Token 未提供');
+      }
     }
-  }
 
   /**
    * 获取模型映射
@@ -222,7 +222,7 @@ class JimengApiClient {
       uploadID = await this.uploadCoverFile(params.filePath)
     }
     // 获取实际模型
-    const modelName = hasFilePath ? DEFAULT_BLEND_MODEL : params.model || DEFAULT_MODEL;
+    const modelName = params.model || (hasFilePath ? DEFAULT_BLEND_MODEL : DEFAULT_MODEL);
     const actualModel = this.getModel(modelName);
 
     // 检查积分
@@ -258,13 +258,14 @@ class JimengApiClient {
             "id": generateUuid(),
             "model": actualModel,
             "prompt": params.prompt + '##',
-            "sample_strength": params.sample_strength || 0.5,
+            "sample_strength": params.sample_strength || 1,
             "image_ratio": 1,
+            "logo_info": { "add_logo": false },
             "large_image_info": {
               "type": "",
               "id": generateUuid(),
-              "height": 1360,
-              "width": 1360,
+              "height": params.height || 1328,
+              "width": params.width || 936,
               "resolution_type": '1k'
             }
           },
@@ -290,7 +291,7 @@ class JimengApiClient {
                   "uri": uploadID
                 }
               ],
-              "strength": 0.5
+              "strength": 1
             }
           ],
           "history_option": {
@@ -323,8 +324,9 @@ class JimengApiClient {
             "prompt": params.prompt,
             "negative_prompt": params.negative_prompt || "",
             "seed": Math.floor(Math.random() * 100000000) + 2500000000,
-            "sample_strength": params.sample_strength || 0.5,
+            "sample_strength": params.sample_strength || 1,
             "image_ratio": 1,
+            "logo_info": { "add_logo": false }, 
             "large_image_info": {
               "type": "",
               "id": generateUuid(),
@@ -401,11 +403,31 @@ class JimengApiClient {
     let status = 20;
     let failCode = null;
     let itemList: any[] = [];
+    const maxWaitTime = 180000; // 3分钟超时
+    const pollInterval = 2000; // 改为2秒轮询一次，减少请求频率
+    const startTime = Date.now();
+    let pollCount = 0;
+    const maxPollCount = Math.floor(maxWaitTime / pollInterval); // 最大轮询次数
+
+    console.log(`开始轮询图片生成状态，最大等待时间: ${maxWaitTime/1000}秒`);
 
     while (status === 20) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - startTime;
+  
+      // 检查是否超时
+      if (elapsedTime >= maxWaitTime || pollCount >= maxPollCount) {
+        console.log(`图片生成超时，已等待 ${Math.floor(elapsedTime/1000)} 秒`);
+        throw new Error(`图片生成超时，请稍后重试。已等待 ${Math.floor(elapsedTime/1000)} 秒`);
+      }
+  
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
+      pollCount++;
+  
+      console.log(`第 ${pollCount} 次轮询，已等待 ${Math.floor(elapsedTime/1000)} 秒...`);
 
-      const result = await this.request(
+      try {
+        const result = await this.request(
         'POST',
         '/mweb/v1/get_history_by_ids',
         {
@@ -437,7 +459,8 @@ class JimengApiClient {
 
       const record = result?.data?.[historyId];
       if (!record) {
-        throw new Error('记录不存在');
+        console.log('记录不存在，继续等待...');
+        continue;
       }
 
       status = record.status;
@@ -446,11 +469,25 @@ class JimengApiClient {
 
       if (status === 30) {
         if (failCode === '2038') {
-          throw new Error('内容被过滤');
+          throw new Error('内容被过滤，请修改提示词后重试');
         }
-        throw new Error('图像生成失败');
+        throw new Error(`图像生成失败，错误代码: ${failCode}`);
       }
+      if (status === 10) {
+        console.log(`图片生成成功！总耗时: ${Math.floor((Date.now() - startTime)/1000)} 秒`);
+        break;
+      }
+    
+    } catch (error) {
+      console.error('轮询过程中出现错误:', error);
+      // 如果是网络错误，继续重试；如果是业务错误，直接抛出
+      if (error instanceof Error && error.message.includes('内容被过滤')) {
+        throw error;
+      }
+      // 网络错误继续重试
+      continue;
     }
+  }
 
     // 提取图片URL
     return itemList.map(item => {
@@ -488,19 +525,24 @@ class JimengApiClient {
 
   public async getFileContent(filePath: string): Promise<Buffer> {
     try {
-      if (filePath.includes('https://') || filePath.includes('http://')) {
-        // 直接用axios获取图片Buffer
+      // 新增：处理Base64 Data URL
+      const base64Match = filePath.match(/^data:image\/\w+;base64,(.*)$/);
+      if (base64Match) {
+        console.log("检测到Base64图片数据，正在解码...");
+        return Buffer.from(base64Match[1], 'base64');
+      }
+
+      // 保留原来的URL和本地文件处理逻辑
+      if (filePath.startsWith('http')) {
         const res = await axios.get(filePath, { responseType: 'arraybuffer' });
         return Buffer.from(res.data);
       } else {
-        // 确保路径是绝对路径
         const absolutePath = path.resolve(filePath);
-        // 读取文件内容
         return await fs.promises.readFile(absolutePath);
       }
     } catch (error) {
-      console.error('Failed to read file:', error);
-      throw new Error(`读取文件失败: filePath`);
+      console.error('读取文件/解码内容失败:', error);
+      throw new Error(`读取或解码文件失败: ${filePath.substring(0, 50)}...`);
     }
   }
 
@@ -874,14 +916,12 @@ class JimengApiClient {
 
 }
 
-// 创建API客户端实例
-const apiClient = new JimengApiClient();
-
-
-// 导出函数，保持对外接口不变
-export const generateImage = (params: ImageGenerationParams): Promise<string[]> => {
-  return apiClient.generateImage(params);
-};
+// 导出函数，现在它接收一个额外的 token 参数
+export const generateImage = (params: ImageGenerationParams, token: string): Promise<string[]> => {
+    // 为每个请求动态创建API客户端实例
+    const apiClient = new JimengApiClient(token);
+    return apiClient.generateImage(params);
+  };
 
 // 导出接口定义，以便其他模块使用
 export type { ImageGenerationParams, LogoInfo };
