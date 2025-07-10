@@ -514,7 +514,7 @@ app.post('/api/comfyui/generateImage', upload.single('image'), async (req: Reque
         }
         
 
-        const { prompt, model, aspect_ratio, width, height } = req.body;
+        const { prompt, model, aspect_ratio, width, height, init_image } = req.body;
         const imageFile = req.file;
 
         if (!prompt) {
@@ -536,9 +536,18 @@ app.post('/api/comfyui/generateImage', upload.single('image'), async (req: Reque
             }
         }
 
+        // 处理图片上传：支持multipart/form-data (imageFile) 和 JSON (init_image)
         if (imageFile) {
-            console.log(`🖼️  ComfyUI 上传了文件: ${imageFile.originalname}`);
+            console.log(`🖼️  ComfyUI 上传了文件 (multipart): ${imageFile.originalname}`);
             finalArgs.filePath = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
+        } else if (init_image) {
+            console.log(`🖼️  ComfyUI 发送了Base64图片数据 (JSON): ${init_image.substring(0, 50)}...`);
+            // 如果已经是完整的data URL，直接使用；否则添加前缀
+            if (init_image.startsWith('data:')) {
+                finalArgs.filePath = init_image;
+            } else {
+                finalArgs.filePath = `data:image/png;base64,${init_image}`;
+            }
         }
 
         console.log('🎨  最终生成参数:', { ...finalArgs, filePath: finalArgs.filePath ? '...base64_data...' : 'null' });
