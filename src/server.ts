@@ -11,25 +11,25 @@ import { imageDetectorMiddleware } from './imageDetectorMiddleware.js';
 const DIMENSIONS = {
   'jimeng-3.1': { 
       "1:1": { width: 1328, height: 1328 }, 
-      "16:9": { width: 1664, height: 936 }, 
-      "4:3": { width: 1472, height: 1104 }, 
-      "3:2": { width: 1584, height: 1056 }, 
+      "16:9": { width: 1770, height: 995 }, 
+      "4:3": { width: 1533, height: 1149 }, 
+      "3:2": { width: 1626, height: 1084 }, 
       "21:9": { width: 2016, height: 864 }, 
-      "3:4": { width: 1104, height: 1472 }, 
-      "2:3": { width: 1056, height: 1584 }, 
-      "9:21": { width: 936, height: 1664 }, 
-      "9:16": { width: 936, height: 1664 } 
+      "3:4": { width: 1149, height: 1533 }, 
+      "2:3": { width: 1084, height: 1626 }, 
+      "9:21": { width: 864, height: 2016 }, 
+      "9:16": { width: 995, height: 1770 } 
   },
   'jimeng-3.0': { 
       "1:1": { width: 1328, height: 1328 }, 
-      "16:9": { width: 1664, height: 936 }, 
-      "4:3": { width: 1472, height: 1104 }, 
-      "3:2": { width: 1584, height: 1056 }, 
+      "16:9": { width: 1770, height: 995 }, 
+      "4:3": { width: 1533, height: 1149 }, 
+      "3:2": { width: 1626, height: 1084 }, 
       "21:9": { width: 2016, height: 864 }, 
-      "3:4": { width: 1104, height: 1472 }, 
-      "2:3": { width: 1056, height: 1584 }, 
-      "9:21": { width: 936, height: 1664 }, 
-      "9:16": { width: 936, height: 1664 } 
+      "3:4": { width: 1149, height: 1533 }, 
+      "2:3": { width: 1084, height: 1626 }, 
+      "9:21": { width: 864, height: 2016 }, 
+      "9:16": { width: 995, height: 1770 } 
   },
   'default': { 
       "1:1": { width: 1360, height: 1360 }, 
