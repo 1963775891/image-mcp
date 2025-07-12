@@ -31,6 +31,28 @@ const DIMENSIONS = {
       "9:21": { width: 864, height: 2016 }, 
       "9:16": { width: 995, height: 1770 } 
   },
+  'jimeng-2.0-pro': { 
+      "1:1": { width: 1360, height: 1360 }, 
+      "16:9": { width: 1360, height: 765 }, 
+      "4:3": { width: 1360, height: 1020 }, 
+      "3:2": { width: 1360, height: 906 }, 
+      "21:9": { width: 1360, height: 582 }, 
+      "3:4": { width: 1020, height: 1360 }, 
+      "2:3": { width: 906, height: 1360 }, 
+      "9:21": { width: 582, height: 1360 }, 
+      "9:16": { width: 765, height: 1360 } 
+  },
+  'jimeng-2.1': { 
+      "1:1": { width: 1360, height: 1360 }, 
+      "16:9": { width: 1360, height: 765 }, 
+      "4:3": { width: 1360, height: 1020 }, 
+      "3:2": { width: 1360, height: 906 }, 
+      "21:9": { width: 1360, height: 582 }, 
+      "3:4": { width: 1020, height: 1360 }, 
+      "2:3": { width: 906, height: 1360 }, 
+      "9:21": { width: 582, height: 1360 }, 
+      "9:16": { width: 765, height: 1360 } 
+  },
   'default': { 
       "1:1": { width: 1360, height: 1360 }, 
       "16:9": { width: 1360, height: 765 }, 
@@ -517,6 +539,8 @@ app.post('/api/comfyui/generateImage', upload.single('image'), async (req: Reque
         const { prompt, model, aspect_ratio, width, height, init_image } = req.body;
         const imageFile = req.file;
 
+        console.log('📋 ComfyUI接收到的参数:', { prompt: prompt?.substring(0, 50) + '...', model, aspect_ratio, width, height });
+
         if (!prompt) {
             res.status(400).json({ error: 'prompt 参数不能为空' });
             return;
@@ -525,14 +549,20 @@ app.post('/api/comfyui/generateImage', upload.single('image'), async (req: Reque
         const finalArgs: ImageGenerationParams = { prompt, model };
 
         if (width && height) {
+            console.log('🔧 使用明确的width/height:', width, height);
             finalArgs.width = parseInt(width, 10);
             finalArgs.height = parseInt(height, 10);
         } else {
             const ratio = aspect_ratio || '1:1';
+            console.log('📐 使用aspect_ratio计算尺寸:', ratio, 'model:', model);
             const dimensions = getDimensions(model, ratio);
+            console.log('📏 计算得到的尺寸:', dimensions);
             if (dimensions) {
                 finalArgs.width = dimensions.width;
                 finalArgs.height = dimensions.height;
+                console.log('✅ 设置最终尺寸:', finalArgs.width, 'x', finalArgs.height);
+            } else {
+                console.log('❌ 未找到对应的尺寸配置');
             }
         }
 
